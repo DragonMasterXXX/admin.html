@@ -2,11 +2,12 @@
 <html>
 <head>
     <title>ADMIN_PANEL - HackerDragon</title>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="/socket.io/socket.io.js"></script>
+    <!-- Use ./ for GitHub Pages relative pathing -->
+    <link rel="stylesheet" href="./css/style.css">
+    <!-- Load Socket.io from CDN because GitHub cannot serve /socket.io/socket.io.js -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 <body class="admin-body">
-    <!-- Top Toolbar -->
     <div class="toolbar">
         <div class="toolbar-left">
             <span class="gold-text status-dot">●</span> SYSTEM_ACTIVE
@@ -17,14 +18,14 @@
     </div>
 
     <div class="admin-container">
-        <h1 class="gold-glow">Hello, Admin.</h1>
+        <h1 class="gold-glow" style="text-align: center; margin-top: 50px;">Hello, Admin.</h1>
 
-        <div class="panel-layout">
+        <div class="panel-layout" style="display: flex; gap: 20px; padding: 20px; justify-content: center;">
             <!-- Alert Controls -->
-            <div class="control-box">
+            <div class="control-box" style="flex: 1; max-width: 400px;">
                 <h3>FAKE_SYSTEM_ALERTS</h3>
-                <div class="input-row">
-                    <input type="text" id="alertText" placeholder="Enter custom message...">
+                <div class="input-row" style="margin-bottom: 15px;">
+                    <input type="text" id="alertText" placeholder="Enter custom message..." style="width: 70%;">
                     <button onclick="sendPrank('custom')">SEND</button>
                 </div>
                 <div class="quick-btns">
@@ -34,8 +35,8 @@
                 </div>
             </div>
 
-            <!-- Mouse Control & File Prank -->
-            <div class="control-box">
+            <!-- Remote Mouse & File Control (Cleaned up as requested) -->
+            <div class="control-box" style="flex: 1; max-width: 400px;">
                 <h3>REMOTE_CONTROL</h3>
                 <label class="switch">
                     <input type="checkbox" id="mouseToggle" onchange="toggleMouse()">
@@ -43,27 +44,31 @@
                 </label>
                 <span style="margin-left:10px">Control Mouse</span>
 
-                <div class="file-prank-zone">
-                    <p>File Deletion Prank:</p>
-                    <div class="drag-container">
-                        <img id="fileIcon" src="images/file.png" class="draggable" draggable="true" ondragend="checkDrop(event)">
-                        <img id="binIcon" src="images/bin.png" class="bin">
-                    </div>
+                <div style="margin-top: 30px; border-top: 1px solid #444; padding-top: 20px;">
+                    <p style="font-size: 12px; color: #888;">VICTIM ACTIONS:</p>
+                    <!-- Trigger for the viewer animation -->
+                    <button class="red-btn" style="width: 100%; padding: 10px;" onclick="sendPrank('delete-files')">TRIGGER FILE DELETION</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Viewer Screen Preview -->
+    <!-- Viewer Screen Preview (Fixed Logic) -->
     <div id="screen-preview">
         <div class="preview-header">VIEWER_STREAM</div>
-        <div id="preview-content">
-            <p id="preview-status">Waiting for link click...</p>
+        <div id="preview-content" style="text-align: center; padding-top: 40px; color: #00ff41; font-family: 'Share Tech Mono', monospace;">
+            <p id="preview-status">WAITING_FOR_CONNECTION...</p>
         </div>
     </div>
 
     <script>
-        const socket = io();
+        /**
+         * IMPORTANT: Replace the URL below with your actual backend URL 
+         * (e.g. from Render, Railway, or Heroku). 
+         * GitHub Pages cannot run Node.js servers.
+         */
+        const socket = io('https://your-prank-backend.onrender.com'); 
+
         socket.emit('join', 'admin');
 
         function sendPrank(type) {
@@ -77,30 +82,4 @@
             
             if (active) {
                 window.addEventListener('mousemove', emitMouse);
-                document.getElementById('preview-status').innerText = "CONTROLLING_MOUSE...";
-            } else {
-                window.removeEventListener('mousemove', emitMouse);
-                document.getElementById('preview-status').innerText = "REMOTE_STANDBY";
-            }
-        }
-
-        function emitMouse(e) {
-            socket.emit('mouse-move-admin', { x: e.clientX, y: e.clientY });
-        }
-
-        function checkDrop(e) {
-            const bin = document.getElementById('binIcon').getBoundingClientRect();
-            if (e.clientX > bin.left && e.clientX < bin.right && e.clientY > bin.top && e.clientY < bin.bottom) {
-                document.getElementById('fileIcon').style.opacity = '0';
-                socket.emit('prank-command', { type: 'delete-files' });
-            }
-        }
-
-        function copyLink() {
-            const url = "/viewer.html";
-            navigator.clipboard.writeText(url);
-            alert("LINK COPIED: " + url);
-        }
-    </script>
-</body>
-</html>
+                document.getElementById('preview-status').innerText = "CONTROLL
