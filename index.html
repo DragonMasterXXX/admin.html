@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ADMIN_PANEL - HackerDragon</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="admin-body">
+    <!-- Top Toolbar -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <span class="gold-text status-dot">●</span> SYSTEM_ACTIVE
+        </div>
+        <div class="toolbar-right">
+            <button onclick="copyLink()" class="prank-link-btn">PRANK LINK</button>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <h1 class="gold-glow">Hello, Admin.</h1>
+
+        <div class="panel-layout">
+            <!-- Alert Controls -->
+            <div class="control-box">
+                <h3>FAKE_SYSTEM_ALERTS</h3>
+                <div class="input-row">
+                    <input type="text" id="alertText" placeholder="Enter custom message...">
+                    <button onclick="sendPrank('custom')">SEND</button>
+                </div>
+                <div class="quick-btns">
+                    <button class="win-btn" onclick="sendPrank('windows')">Windows Update</button>
+                    <button class="red-btn" onclick="sendPrank('red')">Malware Alert</button>
+                    <button class="clear-btn" onclick="sendPrank('clear')">CLEAR ALL</button>
+                </div>
+            </div>
+
+            <!-- Mouse Control & File Prank -->
+            <div class="control-box">
+                <h3>REMOTE_CONTROL</h3>
+                <label class="switch">
+                    <input type="checkbox" id="mouseToggle" onchange="toggleMouse()">
+                    <span class="slider"></span>
+                </label>
+                <span style="margin-left:10px">Control Mouse</span>
+
+                <div class="file-prank-zone">
+                    <p>File Deletion Prank:</p>
+                    <div class="drag-container">
+                        <img id="fileIcon" src="images/file.png" class="draggable" draggable="true" ondragend="checkDrop(event)">
+                        <img id="binIcon" src="images/bin.png" class="bin">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Viewer Screen Preview -->
+    <div id="screen-preview">
+        <div class="preview-header">VIEWER_STREAM</div>
+        <div id="preview-content">
+            <p id="preview-status">Waiting for link click...</p>
+        </div>
+    </div>
+
+    <script>
+        const socket = io();
+        socket.emit('join', 'admin');
+
+        function sendPrank(type) {
+            const msg = document.getElementById('alertText').value;
+            socket.emit('prank-command', { type, msg });
+        }
+
+        function toggleMouse() {
+            const active = document.getElementById('mouseToggle').checked;
+            socket.emit('prank-command', { type: 'set-mouse-state', active });
+            
+            if (active) {
+                window.addEventListener('mousemove', emitMouse);
+                document.getElementById('preview-status').innerText = "CONTROLLING_MOUSE...";
+            } else {
+                window.removeEventListener('mousemove', emitMouse);
+                document.getElementById('preview-status').innerText = "REMOTE_STANDBY";
+            }
+        }
+
+        function emitMouse(e) {
+            socket.emit('mouse-move-admin', { x: e.clientX, y: e.clientY });
+        }
+
+        function checkDrop(e) {
+            const bin = document.getElementById('binIcon').getBoundingClientRect();
+            if (e.clientX > bin.left && e.clientX < bin.right && e.clientY > bin.top && e.clientY < bin.bottom) {
+                document.getElementById('fileIcon').style.opacity = '0';
+                socket.emit('prank-command', { type: 'delete-files' });
+            }
+        }
+
+        function copyLink() {
+            const url = window.location.origin + "/viewer.html";
+            navigator.clipboard.writeText(url);
+            alert("LINK COPIED: " + url);
+        }
+    </script>
+</body>
+</html>
