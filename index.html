@@ -2,7 +2,14 @@
 <html>
 <head>
     <title>ADMIN_PANEL - HackerDragon</title>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+  if (localStorage.getItem("systemAccess") !== "granted") {
+    let path = window.location.pathname;
+    let newPath = path.substring(0, path.lastIndexOf('/') + 1) + "index.html";
+    window.location.href = newPath;
+  }
+</script>
+
     <style>
         body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; }
         .gold-glow { color: #ffd700; text-shadow: 0 0 15px #ffae00; text-transform: uppercase; }
