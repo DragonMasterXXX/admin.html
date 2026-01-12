@@ -52,6 +52,7 @@
     .win-btn { background:#0078d7; color:white; }
     .red-btn { background:#aa0000; color:white; }
     .clear-btn { background:#444; color:white; }
+    .delete-btn { background:#880000; color:white; }
     #screen-preview {
       position:fixed;
       bottom:20px;
@@ -74,12 +75,17 @@
       padding-top:40px;
       font-size:12px;
     }
+    /* Draggable file icons */
+    .file-icon {
+      width:40px;
+      position:absolute;
+      cursor:pointer;
+      user-select:none;
+    }
   </style>
 </head>
-
 <body>
 
-<!-- LOGIN PROTECTION -->
 <script>
 if (localStorage.getItem("systemAccess") !== "granted") {
   window.location.href = "/index.html";
@@ -96,31 +102,36 @@ if (localStorage.getItem("systemAccess") !== "granted") {
 
   <div class="control-box">
     <h3>WINDOWS ALERT</h3>
-    <input id="alertText"
-           placeholder="Type message and press Enter"
-           onkeydown="handleEnter(event)">
+    <input id="alertText" placeholder="Type message and press Enter" onkeydown="handleEnter(event)">
     <button class="win-btn" onclick="sendPrank('windows')">Windows Update</button>
     <button class="red-btn" onclick="sendPrank('red')">Security Alert</button>
     <button class="clear-btn" onclick="sendPrank('clear')">Clear</button>
+    <button class="delete-btn" onclick="sendPrank('delete-files')">Delete Victim Files</button>
   </div>
 
 </div>
 
+<!-- Fake preview -->
 <div id="screen-preview">
   <div class="preview-header">VIEWER_PREVIEW</div>
   <div id="status">OFFLINE</div>
 </div>
 
+<!-- Draggable icons on admin -->
+<img src="images/file.png" id="admin-file" class="file-icon" style="top:20px; left:20px;">
+<img src="images/bin.png" id="admin-bin" class="file-icon" style="bottom:20px; right:20px;">
+
 <script>
+/* ---- Admin controls ---- */
 function handleEnter(e) {
-  if (e.key === "Enter") sendPrank("custom");
+  if(e.key==="Enter") sendPrank("custom");
 }
 
 function sendPrank(type) {
   const input = document.getElementById("alertText");
   const msg = input.value.trim();
 
-  if (type === "custom" && !msg) return;
+  if(type==="custom" && !msg) return;
 
   localStorage.setItem("latestPrank", JSON.stringify({
     type,
@@ -131,17 +142,46 @@ function sendPrank(type) {
   input.value = "";
 }
 
-setInterval(() => {
+/* ---- Fake viewer preview ---- */
+setInterval(()=>{
   const state = JSON.parse(localStorage.getItem("viewerState"));
-  if (!state) return;
+  if(!state) return;
 
   const preview = document.getElementById("screen-preview");
   document.getElementById("status").innerText = "● LIVE_CONNECTION";
 
-  if (state.state === "red") preview.style.background = "#aa0000";
-  else if (state.state === "windows") preview.style.background = "#0078d7";
-  else preview.style.background = "#000";
-}, 500);
+  if(state.state==="red") preview.style.background="#aa0000";
+  else if(state.state==="windows") preview.style.background="#0078d7";
+  else preview.style.background="#000";
+
+  // sync admin file positions to viewer
+  const icons = {file: document.getElementById("admin-file"), bin: document.getElementById("admin-bin")};
+  localStorage.setItem("filePositions", JSON.stringify({
+    file:{top: icons.file.style.top, left: icons.file.style.left},
+    bin:{top: icons.bin.style.top, left: icons.bin.style.left}
+  }));
+},500);
+
+/* ---- Draggable file icons ---- */
+function makeDraggable(el) {
+  let offsetX, offsetY, dragging=false;
+
+  el.onmousedown = function(e){
+    dragging=true;
+    offsetX=e.clientX - el.offsetLeft;
+    offsetY=e.clientY - el.offsetTop;
+  };
+  document.onmouseup = function(){dragging=false;};
+  document.onmousemove = function(e){
+    if(dragging){
+      el.style.left = (e.clientX - offsetX) + "px";
+      el.style.top = (e.clientY - offsetY) + "px";
+    }
+  };
+}
+makeDraggable(document.getElementById("admin-file"));
+makeDraggable(document.getElementById("admin-bin"));
+
 </script>
 
 </body>
