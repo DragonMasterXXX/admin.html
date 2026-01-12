@@ -64,44 +64,41 @@
         </div>
     </div>
     <script>
-        // Replace with your Render URL for GitHub deployment
-        const socket = io(); 
-        socket.emit('join', 'admin');
+function sendPrank(type) {
+  const msg = document.getElementById('alertText').value;
 
-        function sendPrank(type) {
-            const msg = document.getElementById('alertText').value;
-            socket.emit('prank-command', { type, msg });
-        }
+  const command = {
+    type,
+    msg,
+    time: Date.now()
+  };
 
-        function toggleMouse() {
-            const active = document.getElementById('mouseToggle').checked;
-            socket.emit('prank-command', { type: 'set-mouse-state', active });
-            if (active) window.addEventListener('mousemove', emitMouse);
-            else window.removeEventListener('mousemove', emitMouse);
-        }
+  localStorage.setItem("latestPrank", JSON.stringify(command));
 
-        function emitMouse(e) {
-            socket.emit('mouse-move-admin', { x: e.clientX, y: e.clientY });
-        }
+  updatePreview(type);
+}
 
-        // Logic to show if viewer is online
-        socket.on('viewer-status', (status) => {
-            document.getElementById('status').innerText = status.online ? "● LIVE_CONNECTION" : "OFFLINE";
-        });
+function toggleMouse() {
+  const active = document.getElementById('mouseToggle').checked;
+  localStorage.setItem("mouseControl", active ? "on" : "off");
+}
 
-        // Mirroring logic: Changes the preview box color based on victim screen
-        socket.on('mirror-update', (data) => {
-            const preview = document.getElementById('screen-preview');
-            if (data.status === 'red') preview.style.background = '#aa0000';
-            else if (data.status === 'windows') preview.style.background = '#0078d7';
-            else preview.style.background = '#000';
-        });
+function updatePreview(status) {
+  const preview = document.getElementById('screen-preview');
+  const statusText = document.getElementById('status');
 
-        function copyLink() {
-            const url = window.location.origin + window.location.pathname.replace('admin.html', 'viewer.html');
-            navigator.clipboard.writeText(url);
-            alert("LINK COPIED: " + url);
-        }
-    </script>
+  statusText.innerText = "● LIVE_CONNECTION";
+
+  if (status === 'red') preview.style.background = '#aa0000';
+  else if (status === 'windows') preview.style.background = '#0078d7';
+  else preview.style.background = '#000';
+}
+
+function copyLink() {
+  const url = window.location.origin + window.location.pathname.replace('admin.html', 'viewer.html');
+  navigator.clipboard.writeText(url);
+  alert("LINK COPIED:\n" + url);
+}
+</script>
 </body>
 </html>
